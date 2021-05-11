@@ -1,0 +1,16 @@
+name: Conventional Commits Release
+description: Creates releases based on Conventional Commits
+branding:
+  icon: align-left
+  color: blue
+inputs:
+  create-major:
+    required: false
+    description: Creates a major tag as well as Semantic Version.
+    default: 'false'
+  token:
+    required: true
+    description: Access token to the repository.
+runs:
+  using: node12
+  main: dist/index.js

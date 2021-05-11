@@ -1,0 +1,50 @@
+{
+  "name": "@jef/conventional-commits-release-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lints pull requests based on Conventional Commits and Jira tickets",
+  "main": "build/src/main.js",
+  "scripts": {
+    "build": "npm run test && ncc build --source-map",
+    "compile": "tsc",
+    "clean": "gts clean",
+    "fix": "gts fix",
+    "lint": "gts lint",
+    "prestart": "npm run compile",
+    "start": "node ./build/src/main.js",
+    "pretest": "npm run compile",
+    "test": "c8 mocha build/test/**/test-*.js",
+    "posttest": "npm run lint"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jef/conventional-commits-release-action.git"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.7",
+    "@actions/exec": "^1.0.4",
+    "@actions/github": "^4.0.0",
+    "semver": "^7.3.5"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.18",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.0.2",
+    "@types/semver": "^7.3.5",
+    "@types/sinon": "^10.0.0",
+    "@vercel/ncc": "^0.28.5",
+    "c8": "^7.7.2",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "gts": "^3.1.0",
+    "mocha": "^8.4.0",
+    "prettier": "^2.3.0",
+    "sinon": "^10.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  }
+}
