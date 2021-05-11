@@ -7,8 +7,8 @@ on:
     branches:
       - main
 jobs:
-  build-lint:
-    name: Build and lint
+  build-lint-test:
+    name: Build, lint, and test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,3 +29,5 @@ jobs:
         run: npm run compile
       - name: Run linter
         run: npm run lint
+      - name: Run tests
+        run: npm run test
