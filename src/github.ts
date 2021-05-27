@@ -21,7 +21,7 @@ async function createMajorTagReference(
   info(`major tag: ${majorTag}`);
 
   try {
-    await client.git.updateRef({
+    await client.rest.git.updateRef({
       force: true,
       owner,
       ref: `tags/v${majorTag}`,
@@ -32,7 +32,7 @@ async function createMajorTagReference(
     const message = (error as Error).message;
 
     if (message.includes('Reference does not exist')) {
-      await client.git.createRef({
+      await client.rest.git.createRef({
         owner,
         ref: `refs/tags/v${tag}`,
         repo,
@@ -69,7 +69,7 @@ export async function createTagReference(tag: string) {
       await createMajorTagReference(tag, owner, repo);
     }
 
-    await client.git.createRef({
+    await client.rest.git.createRef({
       owner,
       ref: `refs/tags/v${tag}`,
       repo,
