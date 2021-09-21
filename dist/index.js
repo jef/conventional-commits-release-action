@@ -30,7 +30,7 @@ async function callExec(cmd, ...args) {
         ignoreReturnCode: true,
         silent: true,
     };
-    const errorCode = await exec_1.exec(cmd, args, options);
+    const errorCode = await (0, exec_1.exec)(cmd, args, options);
     if (errorCode !== 0) {
         throw new Error(error);
     }
@@ -92,23 +92,23 @@ const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const git_1 = __nccwpck_require__(4846);
 function getClient() {
-    const token = core_1.getInput('token');
-    core_1.setSecret(token);
-    return github_1.getOctokit(token);
+    const token = (0, core_1.getInput)('token');
+    (0, core_1.setSecret)(token);
+    return (0, github_1.getOctokit)(token);
 }
 async function createMajorTagReference(tag, owner, repo) {
     var _a;
     const client = getClient();
     const majorTagArray = (_a = tag.match(/(\d+).*/)) !== null && _a !== void 0 ? _a : [];
     const majorTag = majorTagArray[1];
-    core_1.info(`major tag: ${majorTag}`);
+    (0, core_1.info)(`major tag: ${majorTag}`);
     try {
         await client.rest.git.updateRef({
             force: true,
             owner,
             ref: `tags/v${majorTag}`,
             repo,
-            sha: await git_1.getSha(),
+            sha: await (0, git_1.getSha)(),
         });
     }
     catch (error) {
@@ -118,7 +118,7 @@ async function createMajorTagReference(tag, owner, repo) {
                 owner,
                 ref: `refs/tags/v${tag}`,
                 repo,
-                sha: await git_1.getSha(),
+                sha: await (0, git_1.getSha)(),
             });
             return;
         }
@@ -132,14 +132,14 @@ async function createMajorTagReference(tag, owner, repo) {
  */
 async function createTagReference(tag) {
     const repository = process.env['GITHUB_REPOSITORY'];
-    core_1.info(`tag: ${tag}`);
+    (0, core_1.info)(`tag: ${tag}`);
     if (!repository) {
         throw new Error('Could not get repository');
     }
     const [owner, repo] = repository.split('/');
     const client = getClient();
     try {
-        const createMajor = core_1.getInput('create-major').toLowerCase() === 'true';
+        const createMajor = (0, core_1.getInput)('create-major').toLowerCase() === 'true';
         if (createMajor) {
             await createMajorTagReference(tag, owner, repo);
         }
@@ -147,13 +147,13 @@ async function createTagReference(tag) {
             owner,
             ref: `refs/tags/v${tag}`,
             repo,
-            sha: await git_1.getSha(),
+            sha: await (0, git_1.getSha)(),
         });
     }
     catch (error) {
         const message = error.message;
         if (message.includes('Reference already exists')) {
-            core_1.info(`not creating a reference: ${message}`);
+            (0, core_1.info)(`not creating a reference: ${message}`);
             return;
         }
         throw error;
@@ -195,21 +195,21 @@ async function incrementTag(tag) {
     const defaultTag = tag === '' ? '0.0.0' : tag;
     let message = '';
     try {
-        message = await git_1.getCommitMessage(tag);
+        message = await (0, git_1.getCommitMessage)(tag);
     }
     catch (error) {
-        core_1.setFailed('could not get commit messages');
+        (0, core_1.setFailed)('could not get commit messages');
     }
     const majorBump = new RegExp(/.*(\(.*\))?!:.*(BREAKING CHANGE)?/);
     const minorBump = new RegExp(/feat(\(.*\))?:.*$/);
     if (majorBump.test(message)) {
-        incTag = semver_1.inc(defaultTag, 'major');
+        incTag = (0, semver_1.inc)(defaultTag, 'major');
     }
     else if (minorBump.test(message)) {
-        incTag = semver_1.inc(defaultTag, 'minor');
+        incTag = (0, semver_1.inc)(defaultTag, 'minor');
     }
     else {
-        incTag = semver_1.inc(defaultTag, 'patch');
+        incTag = (0, semver_1.inc)(defaultTag, 'patch');
     }
     if (!incTag) {
         throw new Error('could not increment tag');
@@ -217,10 +217,10 @@ async function incrementTag(tag) {
     return incTag;
 }
 async function release() {
-    const latestTag = await git_1.getLatestTags();
+    const latestTag = await (0, git_1.getLatestTags)();
     const incrementedTag = await incrementTag(latestTag);
-    await github_1.createTagReference(incrementedTag);
-    core_1.setOutput('tag', incrementedTag);
+    await (0, github_1.createTagReference)(incrementedTag);
+    (0, core_1.setOutput)('tag', incrementedTag);
     return incrementedTag;
 }
 exports.release = release;
@@ -361,7 +361,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
 const command_1 = __nccwpck_require__(7351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
@@ -539,19 +539,30 @@ exports.debug = debug;
 /**
  * Adds an error issue
  * @param message error issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
  */
-function error(message) {
-    command_1.issue('error', message instanceof Error ? message.toString() : message);
+function error(message, properties = {}) {
+    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
- * Adds an warning issue
+ * Adds a warning issue
  * @param message warning issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
  */
-function warning(message) {
-    command_1.issue('warning', message instanceof Error ? message.toString() : message);
+function warning(message, properties = {}) {
+    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
+/**
+ * Adds a notice issue
+ * @param message notice issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function notice(message, properties = {}) {
+    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+exports.notice = notice;
 /**
  * Writes info to log with console.log.
  * @param message info message
@@ -685,7 +696,7 @@ exports.issueCommand = issueCommand;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toCommandValue = void 0;
+exports.toCommandProperties = exports.toCommandValue = void 0;
 /**
  * Sanitizes an input into a string so it can be passed into issueCommand safely
  * @param input input to sanitize into a string
@@ -700,6 +711,25 @@ function toCommandValue(input) {
     return JSON.stringify(input);
 }
 exports.toCommandValue = toCommandValue;
+/**
+ *
+ * @param annotationProperties
+ * @returns The command properties to send with the actual annotation command
+ * See IssueCommandProperties: https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionCommandManager.cs#L646
+ */
+function toCommandProperties(annotationProperties) {
+    if (!Object.keys(annotationProperties).length) {
+        return {};
+    }
+    return {
+        title: annotationProperties.title,
+        line: annotationProperties.startLine,
+        endLine: annotationProperties.endLine,
+        col: annotationProperties.startColumn,
+        endColumn: annotationProperties.endColumn
+    };
+}
+exports.toCommandProperties = toCommandProperties;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
@@ -10571,7 +10601,7 @@ module.exports = eval("require")("encoding");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");;
+module.exports = require("assert");
 
 /***/ }),
 
@@ -10579,7 +10609,7 @@ module.exports = require("assert");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");;
+module.exports = require("child_process");
 
 /***/ }),
 
@@ -10587,7 +10617,7 @@ module.exports = require("child_process");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");;
+module.exports = require("events");
 
 /***/ }),
 
@@ -10595,7 +10625,7 @@ module.exports = require("events");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");;
+module.exports = require("fs");
 
 /***/ }),
 
@@ -10603,7 +10633,7 @@ module.exports = require("fs");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");;
+module.exports = require("http");
 
 /***/ }),
 
@@ -10611,7 +10641,7 @@ module.exports = require("http");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");;
+module.exports = require("https");
 
 /***/ }),
 
@@ -10619,7 +10649,7 @@ module.exports = require("https");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");;
+module.exports = require("net");
 
 /***/ }),
 
@@ -10627,7 +10657,7 @@ module.exports = require("net");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");;
+module.exports = require("os");
 
 /***/ }),
 
@@ -10635,7 +10665,7 @@ module.exports = require("os");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");;
+module.exports = require("path");
 
 /***/ }),
 
@@ -10643,7 +10673,7 @@ module.exports = require("path");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");;
+module.exports = require("stream");
 
 /***/ }),
 
@@ -10651,7 +10681,7 @@ module.exports = require("stream");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("string_decoder");;
+module.exports = require("string_decoder");
 
 /***/ }),
 
@@ -10659,7 +10689,7 @@ module.exports = require("string_decoder");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("timers");;
+module.exports = require("timers");
 
 /***/ }),
 
@@ -10667,7 +10697,7 @@ module.exports = require("timers");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");;
+module.exports = require("tls");
 
 /***/ }),
 
@@ -10675,7 +10705,7 @@ module.exports = require("tls");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");;
+module.exports = require("url");
 
 /***/ }),
 
@@ -10683,7 +10713,7 @@ module.exports = require("url");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");;
+module.exports = require("util");
 
 /***/ }),
 
@@ -10691,7 +10721,7 @@ module.exports = require("util");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");;
+module.exports = require("zlib");
 
 /***/ })
 
@@ -10730,7 +10760,9 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
@@ -10746,10 +10778,10 @@ const release_1 = __nccwpck_require__(1834);
  */
 async function entrypoint() {
     try {
-        await release_1.release();
+        await (0, release_1.release)();
     }
     catch (error) {
-        core_1.setFailed(error);
+        (0, core_1.setFailed)(error);
     }
 }
 exports.entrypoint = entrypoint;
