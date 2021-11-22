@@ -33,7 +33,7 @@
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.9.4",
+    "@types/node": "^16.11.9",
     "@types/semver": "^7.3.8",
     "@types/sinon": "^10.0.3",
     "@vercel/ncc": "^0.31.1",
